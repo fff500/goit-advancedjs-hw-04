@@ -1,12 +1,10 @@
 import axios from 'axios';
-//import iziToast from 'izitoast';
+import iziToast from 'izitoast';
+import SimpleLightbox from 'simplelightbox';
 
-//import 'izitoast/dist/css/iziToast.min.css';
-//
-// Описаний в документації
-//import SimpleLightbox from "simplelightbox";
-// Додатковий імпорт стилів
-//import "simplelightbox/dist/simple-lightbox.min.css";
+import 'izitoast/dist/css/iziToast.min.css';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+
 const PHOTOS_PER_PAGE = 40;
 
 const elements = {
@@ -15,9 +13,12 @@ const elements = {
   guard: document.querySelector('.js-guard'),
 };
 
+elements.form.addEventListener('submit', handleSubmit);
+
 let query;
 let counterObserver = 0;
 let page = 1;
+let simpleLightboxInstance;
 
 const options = {
   root: null,
@@ -26,8 +27,6 @@ const options = {
 };
 
 const observer = new IntersectionObserver(handlerLoadMore, options);
-
-elements.form.addEventListener('submit', handleSubmit);
 
 async function fetchPhotos(query, page = 1) {
   const params = new URLSearchParams({
@@ -42,22 +41,32 @@ async function fetchPhotos(query, page = 1) {
 
   const response = await axios.get('https://pixabay.com/api/', { params });
 
+  if (response.status !== 200) {
+    throw new Error(response.statusText || 'Something went wrong');
+  }
+
   return response;
 }
 
 async function handleSubmit(event) {
   event.preventDefault();
 
+  elements.gallery.innerHTML = '';
+
   query = event.target.elements.searchQuery.value.trim();
 
   const {
-    data: { hits, totalHits },
+    data: { hits },
   } = await fetchPhotos(query);
-  console.log(totalHits);
 
-  createMarkup(hits);
-
-  observer.observe(elements.guard);
+  if (!hits.length) {
+    elements.gallery.innerHTML =
+      'Sorry, there are no images matching your search query. Please try again.';
+  } else {
+    createMarkup(hits);
+    simpleLightboxInstance = new SimpleLightbox('.gallery a');
+    observer.observe(elements.guard);
+  }
 }
 
 function createMarkup(imagesArray) {
@@ -73,31 +82,33 @@ function createMarkup(imagesArray) {
         downloads,
       }) => {
         return `
-        <div class="photo-card">
-          <img src="${webformatURL}" alt="${tags}" loading="lazy" class="photo-image"/>
-          <div class="info">
-            <p class="info-item">
-              <b>Likes</b>
-              <br>
-              ${likes}
-            </p>
-            <p class="info-item">
-              <b>Views</b>
-              <br>
-              ${views}
-            </p>
-            <p class="info-item">
-              <b>Comments</b>
-              <br>
-              ${comments}
-            </p>
-            <p class="info-item">
-              <b>Downloads</b>
-              <br>
-              ${downloads}
-            </p>
+        <a href="${largeImageURL}" class="photo-card">
+          <div>
+            <img src="${webformatURL}" alt="${tags}" loading="lazy" class="photo-image"/>
+            <div class="info">
+              <p class="info-item">
+                <b>Likes</b>
+                <br>
+                ${likes}
+              </p>
+              <p class="info-item">
+                <b>Views</b>
+                <br>
+                ${views}
+              </p>
+              <p class="info-item">
+                <b>Comments</b>
+                <br>
+                ${comments}
+              </p>
+              <p class="info-item">
+                <b>Downloads</b>
+                <br>
+                ${downloads}
+              </p>
+            </div>
           </div>
-        </div>
+        </a>
       `;
       }
     )
@@ -112,6 +123,7 @@ function handlerLoadMore(entries) {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       page += 1;
+
       fetchPhotos(query, page)
         .then(responce => {
           const {
@@ -119,6 +131,21 @@ function handlerLoadMore(entries) {
           } = responce;
 
           elements.gallery.insertAdjacentHTML('beforeend', createMarkup(hits));
+
+          iziToast.info({
+            message: `Hooray! We found ${hits.length} images.`,
+          });
+
+          simpleLightboxInstance.refresh();
+
+          const { height: cardHeight } = document
+            .querySelector('.gallery')
+            .firstElementChild.getBoundingClientRect();
+
+          window.scrollBy({
+            top: cardHeight * 2,
+            behavior: 'smooth',
+          });
 
           if (page * PHOTOS_PER_PAGE >= totalHits) {
             observer.unobserve(elements.guard);
