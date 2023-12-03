@@ -1,7 +1,7 @@
-import{S as y,a as b,i as L}from"./assets/vendor-f67ecabd.js";(function(){const r=document.createElement("link").relList;if(r&&r.supports&&r.supports("modulepreload"))return;for(const e of document.querySelectorAll('link[rel="modulepreload"]'))o(e);new MutationObserver(e=>{for(const t of e)if(t.type==="childList")for(const a of t.addedNodes)a.tagName==="LINK"&&a.rel==="modulepreload"&&o(a)}).observe(document,{childList:!0,subtree:!0});function s(e){const t={};return e.integrity&&(t.integrity=e.integrity),e.referrerpolicy&&(t.referrerPolicy=e.referrerpolicy),e.crossorigin==="use-credentials"?t.credentials="include":e.crossorigin==="anonymous"?t.credentials="omit":t.credentials="same-origin",t}function o(e){if(e.ep)return;e.ep=!0;const t=s(e);fetch(e.href,t)}})();const u=40,i={form:document.querySelector(".search-form"),gallery:document.querySelector(".gallery"),guard:document.querySelector(".js-guard")};i.form.addEventListener("submit",v);let c,l=1,d;const w={root:null,rootMargin:"300px",threshold:1},f=new IntersectionObserver(S,w);async function v(n){n.preventDefault(),i.gallery.innerHTML="",c=n.target.elements.searchQuery.value.trim();const{data:{hits:r}}=await m(c);r.length?(g(r),d=new y(".gallery a"),f.observe(i.guard)):i.gallery.innerHTML="Sorry, there are no images matching your search query. Please try again."}async function m(n,r=1){const s=new URLSearchParams({key:"9172745-088e6c545fefcd781d4229961",q:n,image_type:"photo",orientation:"horizontal",safesearch:!0,page:r,per_page:u}),o=await b.get("https://pixabay.com/api/",{params:s});if(o.status!==200)throw new Error(o.statusText||"Something went wrong");return o}function S(n){n.forEach(r=>{r.isIntersecting&&(l+=1,m(c,l).then(s=>{const{data:{hits:o,totalHits:e}}=s;i.gallery.insertAdjacentHTML("beforeend",g(o)),L.info({message:`Hooray! We found ${o.length} images.`}),d.refresh();const{height:t}=document.querySelector(".gallery").firstElementChild.getBoundingClientRect();window.scrollBy({top:t*2,behavior:"smooth"}),l*u>=e&&f.unobserve(i.guard)}).catch(s=>console.log(s)))})}function g(n){const r=n.map(({webformatURL:s,largeImageURL:o,tags:e,likes:t,views:a,comments:h,downloads:p})=>`
-        <a href="${o}" class="photo-card">
+import{S as b,i as f,a as v}from"./assets/vendor-f67ecabd.js";(function(){const r=document.createElement("link").relList;if(r&&r.supports&&r.supports("modulepreload"))return;for(const e of document.querySelectorAll('link[rel="modulepreload"]'))s(e);new MutationObserver(e=>{for(const t of e)if(t.type==="childList")for(const i of t.addedNodes)i.tagName==="LINK"&&i.rel==="modulepreload"&&s(i)}).observe(document,{childList:!0,subtree:!0});function o(e){const t={};return e.integrity&&(t.integrity=e.integrity),e.referrerpolicy&&(t.referrerPolicy=e.referrerpolicy),e.crossorigin==="use-credentials"?t.credentials="include":e.crossorigin==="anonymous"?t.credentials="omit":t.credentials="same-origin",t}function s(e){if(e.ep)return;e.ep=!0;const t=o(e);fetch(e.href,t)}})();const d=40,m=new b(".gallery a"),a={form:document.querySelector(".search-form"),gallery:document.querySelector(".gallery"),guard:document.querySelector(".js-guard")},w={root:null,rootMargin:"300px",threshold:1},l=new IntersectionObserver(S,w);let u,c=1;a.form.addEventListener("submit",L);async function L(n){if(n.preventDefault(),l.unobserve(a.guard),a.gallery.innerHTML="",u=n.target.elements.searchQuery.value.trim(),!u)return alert("Please, write correct search query.");try{const{data:{hits:r,totalHits:o}}=await g(u);r.length?(h(r),m.refresh(),l.observe(a.guard),f.info({message:`Hooray! We found ${o} images.`}),c=2,c*d>=o&&l.unobserve(a.guard)):f.error({message:"Sorry, there are no images matching your search query. Please try again."})}catch(r){console.error(r)}}async function g(n,r=1){const o=new URLSearchParams({key:"9172745-088e6c545fefcd781d4229961",q:n,image_type:"photo",orientation:"horizontal",safesearch:!0,page:r,per_page:d}),s=await v.get("https://pixabay.com/api/",{params:o});if(s.status!==200)throw new Error(s.statusText||"Something went wrong");return s}async function S(n){n.forEach(async r=>{try{if(r.isIntersecting){const{data:{hits:o,totalHits:s}}=await g(u,c);h(o),m.refresh(),c+=1,c*d>=s&&(f.warning({message:"We're sorry, but you've reached the end of search results."}),l.unobserve(a.guard))}}catch(o){console.error(o)}})}function h(n){const r=n.map(({webformatURL:o,largeImageURL:s,tags:e,likes:t,views:i,comments:p,downloads:y})=>`
+        <a href="${s}" class="photo-card">
           <div>
-            <img src="${s}" alt="${e}" loading="lazy" class="photo-image"/>
+            <img src="${o}" alt="${e}" loading="lazy" class="photo-image"/>
             <div class="info">
               <p class="info-item">
                 <b>Likes</b>
@@ -11,20 +11,20 @@ import{S as y,a as b,i as L}from"./assets/vendor-f67ecabd.js";(function(){const 
               <p class="info-item">
                 <b>Views</b>
                 <br>
-                ${a}
+                ${i}
               </p>
               <p class="info-item">
                 <b>Comments</b>
                 <br>
-                ${h}
+                ${p}
               </p>
               <p class="info-item">
                 <b>Downloads</b>
                 <br>
-                ${p}
+                ${y}
               </p>
             </div>
           </div>
         </a>
-      `).join("");i.gallery.insertAdjacentHTML("beforeend",r)}
+      `).join("");a.gallery.insertAdjacentHTML("beforeend",r)}
 //# sourceMappingURL=commonHelpers.js.map
