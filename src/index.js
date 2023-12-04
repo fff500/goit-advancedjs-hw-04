@@ -56,7 +56,10 @@ async function handleSubmit(event) {
       });
       page = 2;
 
-      if (page * PHOTOS_PER_PAGE >= totalHits) {
+      if (page === Math.ceil(totalHits / PHOTOS_PER_PAGE)) {
+        iziToast.warning({
+          message: `We're sorry, but you've reached the end of search results.`,
+        });
         observer.unobserve(elements.guard);
       }
     }
@@ -99,7 +102,7 @@ async function handlerLoadMore(entries) {
         simpleLightboxInstance.refresh();
         page += 1;
 
-        if (page * PHOTOS_PER_PAGE >= totalHits) {
+        if (page === Math.ceil(totalHits / PHOTOS_PER_PAGE)) {
           iziToast.warning({
             message: `We're sorry, but you've reached the end of search results.`,
           });
